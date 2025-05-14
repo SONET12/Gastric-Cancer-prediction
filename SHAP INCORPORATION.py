@@ -125,18 +125,6 @@ if len(shap_values_class.shape) == 3:
     class_idx = 0  
     shap_values_class = shap_values_class[:, :, class_idx]
 
-# Step 4: Remove "Age" from SHAP values and feature matrix
-feature_names = list(X.columns)  # Get the feature names
-if "Age" in feature_names:
-    age_index = feature_names.index("Age")  # Find the index of "Age"
-
-    # Remove "Age" from feature matrix (X) and SHAP values
-    X_filtered = X.drop(columns=["Age"])  # Drop "Age" from X
-    shap_values_class = np.delete(shap_values_class, age_index, axis=1)  # Remove SHAP values for "Age"
-
-    # Remove "Age" from the feature names list
-    feature_names.remove("Age")
-
     # Debugging - Check the adjusted shapes
     print("New SHAP values shape:", shap_values_class.shape)  # Should be (num_samples, num_features - 1)
     print("New feature matrix shape:", X_filtered.shape)  # Should match shap_values_class
@@ -144,7 +132,7 @@ if "Age" in feature_names:
 else:
     X_filtered = X  # Keep X as is if "Age" is not found
 
-# Step 5: Generate SHAP Summary Plot Without "Age"
+# Step 4: Generate SHAP Summary Plot Without "Age"
 plt.figure(figsize=(10, 6))
 shap.summary_plot(shap_values_class, X_filtered, feature_names=feature_names)
 
@@ -155,7 +143,7 @@ expected_value = explainer.expected_value[class_idx] if isinstance(explainer.exp
 
 shap.force_plot(expected_value, shap_values_class[instance_idx], X_filtered.iloc[instance_idx, :], matplotlib=True)
 
-# Step 7: Generate SHAP Dependence Plots for Key Features
+# Step 5: Generate SHAP Dependence Plots for Key Features
 top_features = np.argsort(np.abs(shap_values_class).mean(axis=0))[-5:]  # Select top 5 important features
 for feature_idx in top_features:
     shap.dependence_plot(feature_idx, shap_values_class, X_filtered, feature_names=feature_names)
